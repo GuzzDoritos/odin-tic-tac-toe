@@ -5,7 +5,7 @@
 
 const Game = (() => {    
     
-    function Gameboard () {
+    function Gameboard() {
         const rows = 3;
         const columns = 3;
         let board = [];
@@ -17,40 +17,41 @@ const Game = (() => {
             }
         }  
 
-        function printBoard () {
+        function printBoard() {
             const boardWithCellValues = board.map((row) => row.map((cell) => cell.getMarker()))
             console.table(boardWithCellValues);
         };
 
         function placeMarker(player, row, column) {
-            if (board[row][column].getMarker() == "-") {
-                console.log(board[row][column].getMarker() === "-")
-                board[row][column].setMarker(player); 
+            cell = board[row][column];
+
+            if (cell.getMarker() == "-") {
+                cell.setMarker(player); 
                 printBoard()
             } else {
                 return;
             }
         }
 
+        function Cell() {
+            let marker = "-";
+    
+            const setMarker = (player) => {
+                marker = player;
+            }
+    
+            const getMarker = () => marker;
+
+            return {
+                setMarker,
+                getMarker
+            }
+        }
 
         return { printBoard, placeMarker };
     };
 
     const board = Gameboard();
-
-    function Cell() {
-        let marker = "-";
-
-        const setMarker = (player) => {
-            marker = player;
-        }
-
-        const getMarker = () => marker;
-        return {
-            setMarker,
-            getMarker
-        }
-    }
 
     return {board}
 })()
