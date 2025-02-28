@@ -17,7 +17,7 @@ const Game = (() => {
             }
         }  
 
-        const printBoard = () => {
+        function printBoard () {
             const boardWithCellValues = board.map((row) => row.map((cell) => cell.getMarker()))
             console.table(boardWithCellValues);
         };
