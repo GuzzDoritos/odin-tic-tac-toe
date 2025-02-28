@@ -1,3 +1,8 @@
+/* 
+    Code structure based on Alex Younger's work @ https://replit.com/@40percentzinc/ConnectFourConsole#script.js
+    from the article https://www.ayweb.dev/blog/building-a-house-from-the-inside-out
+*/
+
 const Game = (() => {    
     
     function Gameboard () {
