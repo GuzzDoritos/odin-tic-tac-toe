@@ -21,18 +21,19 @@ const Game = (() => {
             const boardWithCellValues = board.map((row) => row.map((cell) => cell.getMarker()))
             console.table(boardWithCellValues);
         };
-
+        
         function placeMarker(player, row, column) {
-            cell = board[row][column];
+            let cell = board[row][column];
 
-            if (cell.getMarker() == "-") {
-                cell.setMarker(player); 
-                printBoard()
-            } else {
-                return;
-            }
+            cell.setMarker(player); 
+            printBoard()
         }
 
+        function isPlaceValid(row, column) {
+            let cell = board[row][column];
+            return cell.getMarker() == "-";
+        }
+        
         function Cell() {
             let marker = "-";
     
@@ -48,10 +49,62 @@ const Game = (() => {
             }
         }
 
-        return { printBoard, placeMarker };
+        return { printBoard, placeMarker, isPlaceValid };
     };
 
-    const board = Gameboard();
+    function GameController (
+        playerOneName = "Player One",
+        playerTwoName = "Player Two"
+    ) {
+        const board = Gameboard();
 
-    return {board}
+        const players = [
+            {
+                name: playerOneName,
+                marker: "X"
+            },
+            {
+                name: playerTwoName,
+                marker: "O"
+            }
+        ]
+
+        let currentPlayer = players[0];
+
+        const getCurrentPlayer = () => currentPlayer;
+        
+        const switchCurrentPlayer = () => {
+            currentPlayer = currentPlayer === players[0] ? players[1] : players[0]; 
+        }
+
+        const printNewRound = () => {
+            board.printBoard()
+            console.log(`${getCurrentPlayer().name}'s turn`);
+        }
+
+        const playRound = (row, column) => {
+            if (board.isPlaceValid(row, column)) {
+                console.log(`${getCurrentPlayer().name} places marker in row ${row}, ${column}...`)
+                board.placeMarker(getCurrentPlayer().marker, row, column);
+            } else {
+                console.log("There's already a marker in that position.")
+                return;
+            }
+
+            switchCurrentPlayer();
+            printNewRound();
+        }
+
+        printNewRound()
+
+        return {
+            playRound,
+            getCurrentPlayer
+        }
+
+    }
+
+    const run = GameController();
+
+    return { run }
 })()
