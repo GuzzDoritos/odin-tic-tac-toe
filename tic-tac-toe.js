@@ -76,6 +76,27 @@ const Game = (() => {
                 }
             }
 
+            // check diagonals
+            let fromLeftIndex = 0;
+            let fromRightIndex = 2;
+            let fromLeftColArr = [];
+            let fromRightColArr = [];
+            
+            for (let i = 0; i < rows; i++) {
+                fromLeftColArr.push(currentBoard[i][fromLeftIndex].getMarker());
+                fromRightColArr.push(currentBoard[i][fromRightIndex].getMarker());
+                fromLeftIndex++;
+                fromRightIndex--;
+            }
+
+            if (
+                fromLeftColArr.every(el => el == player.marker) || 
+                fromRightColArr.every(el => el == player.marker)
+            ) {
+                gameWon = true;
+                winner = player;   
+            }
+
             const getWinner = () => winner;
             const gameFinished = () => gameWon;
 
