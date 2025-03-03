@@ -25,7 +25,7 @@ const Game = (() => {
         function placeMarker(player, row, column) {
             let cell = board[row][column];
 
-            cell.setMarker(player); 
+            cell.setMarker(player);
         }
 
         const getBoard = () => board;
@@ -59,6 +59,21 @@ const Game = (() => {
                 if (currentBoard[i].every(cell => cell.getMarker() == player.marker)) {
                     gameWon = true;
                     winner = player;
+                }
+            }
+
+            // check columns
+            for (let i = 0; i < columns; i++) {
+                let analyzedCol = [];
+                for (let j = 0; j < rows; j++) {
+                    analyzedCol.push(currentBoard[j][i].getMarker());
+                }
+                console.log(analyzedCol)
+                if (analyzedCol.every(cell => cell == player.marker)) {
+                    gameWon = true;
+                    winner = player;               
+                } else {
+                    continue;
                 }
             }
 
