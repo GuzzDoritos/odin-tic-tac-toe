@@ -50,7 +50,25 @@ const Game = (() => {
             }
         }
 
-        return { printBoard, placeMarker, isPlaceValid };
+        const checkWinner = (currentBoard, player) => {
+            let gameWon = false;
+            let winner;
+
+            // check rows
+            for (let i = 0; i < rows; i++) {
+                if (currentBoard[i].every(cell => cell.getMarker() == player.marker)) {
+                    gameWon = true;
+                    winner = player;
+                }
+            }
+
+            const getWinner = () => winner;
+            const gameFinished = () => gameWon;
+
+            return {getWinner, gameFinished};
+        }
+
+        return { printBoard, placeMarker, isPlaceValid, checkWinner, getBoard };
     };
 
     function GameController (
@@ -92,6 +110,15 @@ const Game = (() => {
                 return;
             }
 
+            const isGameDone = board.checkWinner(board.getBoard(), getCurrentPlayer());
+
+            if (isGameDone.gameFinished()) {
+                board.printBoard()
+                console.log(`Game is over! ${isGameDone.getWinner().name} won.`)
+                return;
+            }
+
+            console.log(board.getBoard())
             switchCurrentPlayer();
             printNewRound();
         }
