@@ -26,7 +26,6 @@ const Game = (() => {
             let cell = board[row][column];
 
             cell.setMarker(player); 
-            printBoard()
         }
 
         function isPlaceValid(row, column) {
