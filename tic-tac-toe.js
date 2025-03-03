@@ -28,6 +28,8 @@ const Game = (() => {
             cell.setMarker(player); 
         }
 
+        const getBoard = () => board;
+
         function isPlaceValid(row, column) {
             let cell = board[row][column];
             return cell.getMarker() == "-";
