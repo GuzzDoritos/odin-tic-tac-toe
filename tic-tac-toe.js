@@ -68,7 +68,6 @@ const Game = (() => {
                 for (let j = 0; j < rows; j++) {
                     analyzedCol.push(currentBoard[j][i].getMarker());
                 }
-                console.log(analyzedCol)
                 if (analyzedCol.every(cell => cell == player.marker)) {
                     gameWon = true;
                     winner = player;               
