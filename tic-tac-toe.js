@@ -28,6 +28,10 @@ const Game = (() => {
             cell.setMarker(player);
         }
 
+        const clearBoard = () => {
+            board.forEach(row => row.forEach(col => col.setMarker("-")))
+        }
+
         const getBoard = () => board;
 
         function isPlaceValid(row, column) {
@@ -103,7 +107,7 @@ const Game = (() => {
             return {getWinner, gameFinished};
         }
 
-        return { printBoard, placeMarker, isPlaceValid, checkWinner, getBoard };
+        return { printBoard, placeMarker, isPlaceValid, checkWinner, getBoard, clearBoard };
     };
 
     function GameController (
@@ -160,9 +164,17 @@ const Game = (() => {
 
         printNewRound()
 
+        const resetGame = () => {
+            board.clearBoard();
+            console.log("Game reset!");
+            currentPlayer = players[0];
+            printNewRound();
+        }
+
         return {
             playRound,
-            getCurrentPlayer
+            getCurrentPlayer,
+            resetGame
         }
 
     }
