@@ -5,6 +5,15 @@
 
 const Game = (() => {    
     
+    const cacheDOM = {
+        boardDisplay: document.querySelector(".game-container"),
+        messageDisplay: document.querySelector("#output"),
+        startButton: document.querySelector("#start-button"),
+        inputDiv: document.querySelector(".input-div"),
+        playerOneInput: document.querySelector("#player-1"),
+        playerTwoInput: document.querySelector("#player-2")
+    }
+
     function Gameboard() {
         const rows = 3;
         const columns = 3;
@@ -101,13 +110,36 @@ const Game = (() => {
                 winner = player;   
             }
 
+            // check tie
+
+            let isTie = false;
+
+            let verifyTieArr = [];
+            currentBoard.forEach(row => row.forEach(cell => verifyTieArr.push(cell.getMarker())));
+            if (verifyTieArr.every(cell => cell !== "-")) {
+                gameWon = true;
+                isTie = true;
+            }
+
+            const checkTie = () => isTie;
             const getWinner = () => winner;
             const gameFinished = () => gameWon;
 
-            return {getWinner, gameFinished};
+            return {
+                getWinner, 
+                gameFinished, 
+                checkTie
+            };
         }
 
-        return { printBoard, placeMarker, isPlaceValid, checkWinner, getBoard, clearBoard };
+        return { 
+            printBoard, 
+            placeMarker, 
+            isPlaceValid, 
+            checkWinner, 
+            getBoard, 
+            clearBoard 
+        };
     };
 
     function GameController (
@@ -115,6 +147,11 @@ const Game = (() => {
         playerTwoName = "Player Two"
     ) {
         const board = Gameboard();
+        let msg = ``;
+        
+        const states = ["running", "finished"];
+        let currentState = states[0];
+        const getCurrentState = () => states.indexOf(currentState);
 
         const players = [
             {
@@ -137,14 +174,20 @@ const Game = (() => {
 
         const printNewRound = () => {
             board.printBoard()
+            msg = `${getCurrentPlayer().name}'s turn...`;
+            print()
             console.log(`${getCurrentPlayer().name}'s turn`);
         }
 
         const playRound = (row, column) => {
+            if (currentState == states[1]) return;
+
             if (board.isPlaceValid(row, column)) {
                 console.log(`${getCurrentPlayer().name} places marker in row ${row}, ${column}...`)
                 board.placeMarker(getCurrentPlayer().marker, row, column);
             } else {
+                msg = "There's already a marker in that position.";
+                print();
                 console.log("There's already a marker in that position.")
                 return;
             }
@@ -152,34 +195,104 @@ const Game = (() => {
             const isGameDone = board.checkWinner(board.getBoard(), getCurrentPlayer());
 
             if (isGameDone.gameFinished()) {
-                board.printBoard()
-                console.log(`Game is over! ${isGameDone.getWinner().name} won.`)
+                if (isGameDone.checkTie()) {
+                    msg = "It's a tie!";
+                    console.log("It's a tie!")
+                } else {
+                    msg = `Game is over! ${isGameDone.getWinner().name} won.`;
+                    console.log(`Game is over! ${isGameDone.getWinner().name} won.`)
+                }
+                currentState = states[1];
+
+                print()
                 return;
             }
 
-            console.log(board.getBoard())
             switchCurrentPlayer();
             printNewRound();
         }
 
+        print()
         printNewRound()
 
         const resetGame = () => {
             board.clearBoard();
             console.log("Game reset!");
             currentPlayer = players[0];
+            currentState = states[0];
             printNewRound();
+        }
+
+        function print() {
+            renderDOM().update(board, msg, getCurrentState());
         }
 
         return {
             playRound,
             getCurrentPlayer,
+            getCurrentState,
             resetGame
         }
 
     }
 
-    const run = GameController();
+    let run = null;
 
-    return { run }
+    function renderDOM() {
+        const update = (board, msg, state) => {
+            cacheDOM.boardDisplay.replaceChildren();
+            cacheDOM.messageDisplay.textContent = msg;
+
+            if (state) {
+                const btn = document.createElement("button");
+                btn.textContent = "Reset";
+                btn.addEventListener("click", () => {
+                    run = null; 
+                    document.querySelector(".btn-div").replaceChildren();
+                    cacheDOM.boardDisplay.replaceChildren();
+                    cacheDOM.messageDisplay.textContent = "";
+
+                    cacheDOM.inputDiv.classList.toggle("hidden");
+                    createStartButton();                    
+                })
+                document.querySelector(".btn-div").appendChild(btn)
+            }
+
+            board.getBoard().forEach((row, rowIndex) => row.forEach((cell, cellIndex) => {
+                const marker = cell.getMarker();
+
+                const cellDisplay = document.createElement("div");
+                cellDisplay.textContent = marker == "-" ? "": marker;
+                cellDisplay.className = "cell";
+                cellDisplay.addEventListener("click", () => {run.playRound(rowIndex, cellIndex)})
+
+                cacheDOM.boardDisplay.appendChild(cellDisplay); 
+            }))
+        }
+
+        return { update }
+    }
+
+    function startGame() {
+        const playerOneName = cacheDOM.playerOneInput.value.trim() == "" ? undefined : cacheDOM.playerOneInput.value.trim();
+        const playerTwoName = cacheDOM.playerTwoInput.value.trim() == "" ? undefined : cacheDOM.playerTwoInput.value.trim();
+
+        run = GameController(playerOneName, playerTwoName);
+
+        cacheDOM.inputDiv.classList.toggle("hidden");    
+
+        return { createButton }
+    }
+
+    const createStartButton = () => {
+        startBtn = document.createElement("button");
+        startBtn.id = "start-button";
+        startBtn.textContent = "Start";
+        cacheDOM.boardDisplay.appendChild(startBtn);
+        startBtn.addEventListener("click", () => startGame())
+    }
+
+    createStartButton();
+
+    return { startGame }
 })()
